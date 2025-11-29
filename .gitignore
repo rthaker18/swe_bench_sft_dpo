@@ -81,3 +81,6 @@ tensorboard/
 tmp/
 temp/
 *.tmp
+
+# Patches
+patches/

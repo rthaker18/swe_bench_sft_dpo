@@ -75,22 +75,47 @@ def main():
     args = parser.parse_args()
 
     # Configuration optimized for 8GB RAM
-    print(f"Configuring inference with model: {args.model}")
+    # Disable 4-bit quantization on M1 Macs (bitsandbytes requires CUDA)
+    is_mps = torch.backends.mps.is_available()
+    is_cuda = torch.cuda.is_available()
+
+    # Use CPU on M1 Macs for better stability (MPS has compatibility issues)
+    if is_mps and not is_cuda:
+        device_map = "cpu"
+        load_in_4bit = False
+        print(f"Configuring inference with model: {args.model}")
+        print("Detected Apple Silicon - using CPU backend for stability")
+        print("(MPS has compatibility issues with some models)")
+    elif is_cuda:
+        device_map = "auto"
+        load_in_4bit = True
+        print(f"Configuring inference with model: {args.model}")
+        print("Using CUDA with 4-bit quantization")
+    else:
+        device_map = "cpu"
+        load_in_4bit = False
+        print(f"Configuring inference with model: {args.model}")
+        print("Using CPU backend")
+
     config = InferenceConfig(
         model_path=args.model,
         max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,
         top_p=0.95,
         do_sample=True,
-        load_in_4bit=True,
-        device_map="auto",
+        load_in_4bit=load_in_4bit,
+        device_map=device_map,
     )
 
     print("\n" + "="*80)
     print("LOADING MODEL")
     print("="*80)
     print("This may take 2-5 minutes on first run (downloading model)...")
-    print(f"Expected memory usage: ~5-6GB")
+    if device_map == "cpu":
+        print(f"Expected memory usage: ~6-8GB (CPU mode, no quantization)")
+        print("Note: CPU inference will be slower but more stable on M1 Macs")
+    else:
+        print(f"Expected memory usage: ~5-6GB (with 4-bit quantization)")
     print("")
 
     inference = LocalModelInference(config)
@@ -134,7 +159,7 @@ def main():
             hints=sample.get("hints_text"),
         )
 
-        print("Generating patch... (this may take 30-90 seconds)")
+        print("Generating patch... (this may take a while seconds)")
 
         try:
             patch = inference.generate(prompt)
@@ -151,7 +176,8 @@ def main():
             })
 
             # Save individual patch file
-            patch_file = f"./patch_{sample['instance_id']}.diff"
+            os.makedirs("./patches", exist_ok=True)
+            patch_file = f"./patches/patch_{sample['instance_id']}.diff"
             with open(patch_file, "w") as f:
                 f.write(patch)
             print(f"\nPatch saved to: {patch_file}")
