@@ -1,4 +1,4 @@
-# SWE-Patch Trainer
+# SWE-Bench SFT/DPO
 
 A cost-efficient pipeline for fine-tuning open-source models to write patches for GitHub issues, using the SWE-Bench Pro dataset.
 
@@ -22,8 +22,8 @@ This project implements a complete training and evaluation pipeline:
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/swe_patch_trainer.git
-cd swe_patch_trainer
+git clone https://github.com/rthaker18/swe_bench_sft_dpo.git
+cd swe_bench_sft_dpo
 pip install -r requirements.txt
 ```
 
@@ -94,7 +94,7 @@ python scripts/upload_to_hub.py \
 ## Project Structure
 
 ```
-swe_patch_trainer/
+swe_bench_sft_dpo/
 ├── DESIGN.md                 # Detailed design documentation
 ├── requirements.txt          # Python dependencies
 ├── configs/
@@ -283,10 +283,10 @@ MIT License
 ## Citation
 
 ```bibtex
-@software{swe_patch_trainer,
-  title={SWE-Patch Trainer: Fine-tuning Pipeline for GitHub Issue Resolution},
-  year={2024},
-  url={https://github.com/YOUR_USERNAME/swe_patch_trainer}
+@software{swe_bench_sft_dpo,
+  title={SWE-Bench SFT/DPO: Fine-tuning Pipeline for GitHub Issue Resolution},
+  year={2025},
+  url={https://github.com/rthaker18/swe_bench_sft_dpo}
 }
 ```
 
