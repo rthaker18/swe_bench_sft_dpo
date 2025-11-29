@@ -1,0 +1,50 @@
+# Local M1 Inference Configuration
+# Optimized for Apple Silicon with 8GB RAM
+
+# Model Configuration
+model:
+  # Use a 3B parameter model optimized for code
+  name: "Qwen/Qwen2.5-Coder-3B-Instruct"
+  # Alternatives:
+  # - "deepseek-ai/deepseek-coder-1.3b-instruct"  # Smaller, safer option
+  # - "bigcode/starcoder2-3b"                     # Good for code
+  # - "stabilityai/stable-code-3b"                # Alternative
+  torch_dtype: "float16"  # Better M1 support than bfloat16
+  device_map: "auto"
+  trust_remote_code: true
+
+# Quantization (4-bit for memory efficiency)
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+
+# Inference Configuration
+inference:
+  max_new_tokens: 1024  # Reduced from 2048 to save memory
+  temperature: 0.1
+  top_p: 0.95
+  do_sample: true
+
+# Memory Limits (Reserve 2GB for macOS)
+memory:
+  max_memory:
+    0: "6GB"      # GPU/MPS
+    cpu: "6GB"    # CPU RAM
+  low_cpu_mem_usage: true
+
+# Prompt Template
+prompt_template: |
+  ### Task: Fix GitHub Issue
+
+  Repository: {repo}
+
+  ### Issue Description:
+  {problem_statement}
+
+  ### Instructions:
+  Generate a unified diff patch that fixes the issue described above.
+  The patch should be in standard unified diff format.
+
+  ### Patch:

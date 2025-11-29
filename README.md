@@ -17,6 +17,8 @@ This project implements a complete training and evaluation pipeline:
 - **DPO over RLHF**: Simpler, cheaper, and more stable than PPO-based RLHF
 - **Reproducible evaluation**: Docker containers match SWE-Bench Pro's official environment
 
+> **💻 Running on M1 Mac with 8GB RAM?** Check out [LOCAL_M1_INFERENCE.md](LOCAL_M1_INFERENCE.md) for instructions on running inference with smaller 3B models. Note: Training requires cloud GPUs.
+
 ## Quick Start
 
 ### 1. Clone and Install

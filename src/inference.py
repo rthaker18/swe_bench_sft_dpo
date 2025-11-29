@@ -88,17 +88,22 @@ class LocalModelInference(BaseInference):
     def _load_model(self):
         """Load model with optional quantization and PEFT."""
         print(f"Loading model from: {self.config.model_path}")
-        
+
         # Quantization config
         if self.config.load_in_4bit:
+            # Use float16 for better M1 compatibility (fallback from bfloat16)
+            compute_dtype = torch.float16
             bnb_config = BitsAndBytesConfig(
                 load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.bfloat16,
+                bnb_4bit_compute_dtype=compute_dtype,
                 bnb_4bit_quant_type="nf4",
                 bnb_4bit_use_double_quant=True,
             )
+            # Set memory limits for systems with limited RAM
+            max_memory = {"cpu": "6GB"}
         else:
             bnb_config = None
+            max_memory = None
         
         # Check if this is a PEFT model
         is_peft = os.path.exists(
@@ -116,7 +121,9 @@ class LocalModelInference(BaseInference):
                 quantization_config=bnb_config,
                 device_map=self.config.device_map,
                 trust_remote_code=True,
-                torch_dtype=torch.bfloat16,
+                torch_dtype=torch.float16,
+                max_memory=max_memory,
+                low_cpu_mem_usage=True,
             )
             
             # Load adapter
@@ -130,7 +137,9 @@ class LocalModelInference(BaseInference):
                 quantization_config=bnb_config,
                 device_map=self.config.device_map,
                 trust_remote_code=True,
-                torch_dtype=torch.bfloat16,
+                torch_dtype=torch.float16,
+                max_memory=max_memory,
+                low_cpu_mem_usage=True,
             )
             
             tokenizer = AutoTokenizer.from_pretrained(self.config.model_path)
