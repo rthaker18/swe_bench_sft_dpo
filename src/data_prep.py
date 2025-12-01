@@ -305,14 +305,19 @@ def format_for_dpo(pairs: List[PreferencePair]) -> Dataset:
 def save_dataset(dataset: Dataset, path: str, format: str = "json"):
     """Save dataset to disk."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    
+
     if format == "json":
-        dataset.to_json(path)
+        # Write line by line to avoid memory issues
+        with open(path, 'w') as f:
+            for i, item in enumerate(dataset):
+                json.dump(item, f)
+                if i < len(dataset) - 1:
+                    f.write('\n')
     elif format == "parquet":
         dataset.to_parquet(path)
     else:
         raise ValueError(f"Unknown format: {format}")
-    
+
     print(f"Saved dataset to {path}")
 
 
