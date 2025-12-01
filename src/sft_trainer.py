@@ -180,7 +180,18 @@ def create_trainer(
     config: SFTTrainingConfig,
 ) -> SFTTrainer:
     """Create SFT trainer instance."""
-    
+
+    # Detect BF16 support
+    use_bf16 = torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+    use_fp16 = torch.cuda.is_available() and not use_bf16
+
+    if use_bf16:
+        print("Using BF16 mixed precision training")
+    elif use_fp16:
+        print("BF16 not supported, using FP16 mixed precision training")
+    else:
+        print("Warning: No mixed precision support detected, training will be slower")
+
     # Training arguments
     training_args = SFTConfig(
         output_dir=config.output_dir,
@@ -194,8 +205,8 @@ def create_trainer(
         lr_scheduler_type="cosine",
         max_grad_norm=1.0,
         optim="paged_adamw_32bit",
-        fp16=False,
-        bf16=True,
+        fp16=use_fp16,
+        bf16=use_bf16,
         logging_steps=10,
         save_strategy="steps",
         save_steps=100,
