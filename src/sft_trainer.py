@@ -202,6 +202,7 @@ def create_trainer(
         eval_strategy="steps" if eval_dataset else "no",
         eval_steps=100 if eval_dataset else None,
         gradient_checkpointing=True,
+        max_length=config.max_seq_length,
         packing=False,  # Don't pack sequences for code generation
         push_to_hub=config.push_to_hub,
         hub_model_id=config.hub_model_id,
@@ -214,7 +215,6 @@ def create_trainer(
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         processing_class=tokenizer,
-        max_length=config.max_seq_length,
     )
     
     return trainer
