@@ -104,21 +104,29 @@ def get_lora_config(config: SFTTrainingConfig) -> LoraConfig:
 def load_model_and_tokenizer(config: SFTTrainingConfig):
     """Load model with quantization and prepare for training."""
     print(f"Loading model: {config.model_name}")
-    
+
+    # Check GPU availability
+    if not torch.cuda.is_available():
+        raise RuntimeError("CUDA is not available! Training on CPU is not supported for large models.")
+
+    print(f"GPU detected: {torch.cuda.get_device_name(0)}")
+    print(f"CUDA version: {torch.version.cuda}")
+    print(f"Available GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+
     # Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         config.model_name,
         trust_remote_code=True,
     )
-    
+
     # Set padding token if not set
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id
-    
+
     # Quantization config
     bnb_config = get_bnb_config(config)
-    
+
     # Load model
     model = AutoModelForCausalLM.from_pretrained(
         config.model_name,
@@ -127,17 +135,19 @@ def load_model_and_tokenizer(config: SFTTrainingConfig):
         trust_remote_code=True,
         torch_dtype=getattr(torch, config.torch_dtype),
     )
-    
+
+    print(f"Model device map: {model.hf_device_map}")
+
     # Prepare for k-bit training
     model = prepare_model_for_kbit_training(model)
-    
+
     # Add LoRA adapters
     lora_config = get_lora_config(config)
     model = get_peft_model(model, lora_config)
-    
+
     # Print trainable parameters
     model.print_trainable_parameters()
-    
+
     return model, tokenizer
 
 
