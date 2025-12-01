@@ -214,7 +214,7 @@ def create_trainer(
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         processing_class=tokenizer,
-        max_seq_length=config.max_seq_length,
+        max_length=config.max_seq_length,
     )
     
     return trainer
