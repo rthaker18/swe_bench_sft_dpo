@@ -3,12 +3,16 @@ Run inference on SWE-Bench dataset and generate predictions.
 """
 
 import os
+import sys
 import json
 import torch
 from typing import List, Dict
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
+
+# Add parent directory to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.data_prep import load_swebench_pro, create_sft_prompt
 

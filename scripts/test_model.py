@@ -2,9 +2,14 @@
 Quick test script to verify the trained model generates patches.
 """
 
+import os
+import sys
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
+
+# Add parent directory to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def test_model(
     base_model: str = "deepseek-ai/deepseek-coder-7b-base-v1.5",
