@@ -33,6 +33,7 @@ def generate_predictions(
     max_new_tokens: int = 1024,
     temperature: float = 0.7,
     top_p: float = 0.95,
+    repetition_penalty: float = 1.0,
 ) -> Dict[str, str]:
     """Generate patch predictions for all instances."""
     predictions = {}
@@ -57,6 +58,7 @@ def generate_predictions(
                 temperature=temperature,
                 top_p=top_p,
                 do_sample=True,
+                repetition_penalty=repetition_penalty,
                 pad_token_id=tokenizer.eos_token_id,
             )
 
@@ -238,6 +240,12 @@ def main():
         help="Sampling temperature"
     )
     parser.add_argument(
+        "--repetition-penalty",
+        type=float,
+        default=1.0,
+        help="Repetition penalty (1.0 = no penalty, >1.0 = penalize repetition)"
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         help="Limit number of instances (for testing)"
@@ -305,6 +313,7 @@ def main():
             tokenizer,
             max_new_tokens=args.max_tokens,
             temperature=args.temperature,
+            repetition_penalty=args.repetition_penalty,
         )
 
         print("\n" + "="*80)
